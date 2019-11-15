@@ -3,16 +3,20 @@ import {Route} from 'react-router-dom'
 import './App.css';
 import HeaderContainer from  './components/Header/HeaderContainer'
 import Navbar from  './components/Navbar/Navbar'
-import ProfileContainer from  './components/Profile/ProfileContainer'
 import UsersContainer from  './components/Users/UsersContainer'
-import DialogsContainer from './components/Dialogs/DialogsContainer'
 import Login from './components/Login/Login'
 import {initializeApp} from './redux/appReducer'
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
 import {compose} from 'redux';
 import PreLoader from './components/common/preloader/PreLoader';
+import store from './redux/reduxStore'
+import {BrowserRouter} from 'react-router-dom';
+import {Provider} from 'react-redux';
+import {withSuspense} from './hoc/withSuspense';
 
+const DialogsContainer = React.lazy(() => import('./components/Dialogs/DialogsContainer'))
+const ProfileContainer = React.lazy(() => import('./components/Profile/ProfileContainer'))
 
 class App extends React.Component {
   componentDidMount() {
@@ -29,9 +33,9 @@ class App extends React.Component {
                 <Navbar />
                 <div className='app-wrapper-content'>
                     <Route path="/dialogs"
-                     render={() => <DialogsContainer />}/>
+                     render={withSuspense(DialogsContainer)}/>
                     <Route path="/profile/:userId?" 
-                     render={() => <ProfileContainer  />}/>
+                     render={withSuspense(ProfileContainer)}/>
                     <Route path="/users" 
                      render={() => <UsersContainer />}/>
                     <Route path="/login" 
@@ -47,6 +51,15 @@ const mapStateToProps = (state) => ({
     initialized: state.app.initialized
 })
 
-export default compose(
+let AppContainer =  compose(
     withRouter,
     connect(mapStateToProps, {initializeApp}))(App);
+    
+const SamuraiJSApp = (props) => {
+  return <BrowserRouter>
+    <Provider store={store}>
+        <AppContainer />
+    </Provider>
+  </BrowserRouter>
+}
+export default SamuraiJSApp;
