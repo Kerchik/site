@@ -1,17 +1,19 @@
 import * as axios from "axios"; 
+import { savePhotoSuccess } from "../redux/profileReducer";
 
 
 
 const instance = axios.create({
     withCredentials: true,
     headers: {
-        "API-KEY": "8152652a-9218-49ab-9d2a-fe096c0bb417"
+        "API-KEY": "2ef20370-8037-4b6c-bd91-6c68962a182a"
     },
     baseURL: `https://social-network.samuraijs.com/api/1.0/`,
 });
 
 export const usersAPI = {
     getUsers(currentPage = 1, pageSize = 10) {
+        console.log("asdasd")
         return instance.get(`users?page=${currentPage}&count=${pageSize}`)
         .then(response => response.data)
     },
@@ -37,6 +39,19 @@ export const profileAPI = {
     },
     updateStatus(status) {
         return instance.put(`profile/status`, {status: status});
+    },
+    savePhoto(photoFile) {
+        const formData = new FormData();
+        formData.append("image", photoFile);
+        return instance.put(`profile/photo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+    },
+    saveProfile(profile) {
+        return instance.put(`profile`, profile);
+
     }
 }
 export const authAPI = {
